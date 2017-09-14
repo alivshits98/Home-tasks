@@ -1,0 +1,3 @@
+﻿  Source.cpp
+Source.obj : error LNK2019: unresolved external symbol "public: __thiscall Rational::Rational(int,int)" (??0Rational@@QAE@HH@Z) referenced in function _main
+C:\Users\Ася\Documents\Visual Studio 2015\Projects\livshits_a_b\Debug\rational.exe : fatal error LNK1120: 1 unresolved externals
