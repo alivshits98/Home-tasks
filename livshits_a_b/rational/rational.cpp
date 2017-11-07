@@ -1,91 +1,254 @@
 #include "rational.h"
 #include <iostream>
+#include <sstream>
+#include <cmath>
+using namespace std;
+
+Rational::Rational(const int num)
+    : num_{ num },
+    denum_{ 1 }
+{
+}
+
+Rational::Rational(const int num, const int denum)
+    : num_(num),
+    denum_(denum)
+{
+    if (denum_ == 0)
+        throw invalid_argument("Division by zero!");
+}
+
+Rational::Rational(const Rational& rhs)
+    :   num_(rhs.num_),
+        denum_(rhs.denum_)
+{
+    if (denum_ == 0)
+        throw invalid_argument("Division by zero!");
+}
+
+Rational& Rational::operator=(const Rational& rhs)
+
+{
+    num_ = rhs.num_;
+    denum_ = rhs.denum_;
+
+    if (denum_ == 0)
+        throw invalid_argument("Division by zero!");
+
+    return *this;
+}
 
 
-int nod(int& a, int& b)
-{
-    int c, d, a1, b1;
-    c = a; d = b;
-    a1 = a;
-    b1 = b;
-    while (c%d != 0)
-        if (a1 >= b1)
-        {
-            c = a1%b1;
-            if (c == 0) { return a; break; }
-            d = b1%c;
-            if (d == 0) { return c; break; }
-            a1 = c;
-            b1 = d;
-        }
-        else {
-            c = b1%a1;
-            if (c == 0) { return a; break; }
-            d = a1%c;
-            if (d == 0) { return c; break; }
-            a1 = c;
-            b1 = d;
-        }
-}
-void Rational::Correct(Rational& t)
-{
-    int k = nod(t.num_, t.denum_);
-    t = Rational(t.num_ / k, t.denum_ / k);
-    if (t.denum_ < 0)
-    {
-        t.denum_ *= -1;
-        t.num_ *= -1;
-    }
-}
 Rational& Rational::operator+=(const Rational& rhs)
 {
     num_ = num_*rhs.denum_ + rhs.num_*denum_;
-    denum_ = denum_*rhs.denum_;
+    denum_ *= rhs.denum_;
+    correct();
     return *this;
 }
+Rational& Rational::operator+=(const int rhs)
+{
+    return operator+=(Rational(rhs));
+}
+
+Rational operator+(const Rational& numb1, const Rational& numb2)
+{
+    Rational res(numb1);
+    res += numb2;
+    return res;
+}
+Rational operator+(const Rational& numb1, const int numb2)
+{
+    Rational res(numb1);
+    res += numb2;
+    return res;
+}
+Rational operator+(const int numb1, const Rational& numb2)
+{
+    Rational res(numb1);
+    res += numb2;
+    return res;
+}
+
 
 Rational& Rational::operator-=(const Rational& rhs)
 {
     num_ = num_*rhs.denum_ - rhs.num_*denum_;
-    denum_ = denum_*rhs.denum_;
+    denum_ *= rhs.denum_;
+    correct();
     return *this;
 }
-Rational operator-(const Rational& lhs, const Rational& rhs)
+Rational& Rational::operator-=(const int rhs)
 {
-    return Rational(lhs.num_*rhs.denum_ - rhs.num_*lhs.denum_, lhs.denum_ * rhs.denum_);
+    return operator-=(Rational(rhs));
 }
 
-Rational operator*(const Rational& lhs, const Rational& rhs)
+Rational operator-(const Rational& numb1, const Rational& numb2)
 {
-    return Rational(lhs.num_ * rhs.num_, lhs.denum_ * rhs.denum_);
+    Rational res(numb1);
+    res -= numb2;
+    return res;
 }
+Rational operator-(const Rational& numb1, const int numb2)
+{
+    Rational res(numb1);
+    res -= numb2;
+    return res;
+}
+Rational operator-(const int numb1, const Rational& numb2)
+{
+    Rational res(numb1);
+    res -= numb2;
+    return res;
+}
+
+
 Rational& Rational::operator*=(const Rational& rhs)
 {
-    num_ = rhs.num_*num_;
-    denum_ = rhs.denum_*denum_;
+    num_ *= rhs.num_;
+    denum_ *= rhs.denum_;
+    correct();
     return *this;
+}
+Rational& Rational::operator*=(const int rhs)
+{
+    return operator*=(Rational(rhs));
+}
+
+Rational operator*(const Rational& numb1, const Rational& numb2)
+{
+    Rational res = numb1;
+    res *= numb2;
+    return res;
+}
+Rational operator*(const Rational& numb1, const int numb2)
+{
+    Rational res = numb1;
+    res *= numb2;
+    return res;
+}
+Rational operator*(const int numb1, const Rational& numb2)
+{
+    Rational res = numb1;
+    res *= numb2;
+    return res;
 }
 
 Rational& Rational::operator/=(const Rational& rhs)
 {
-    num_ = num_*rhs.denum_;
-    denum_ = rhs.num_*denum_;
+    num_ *= rhs.denum_;
+    denum_ *= rhs.num_;
+    correct();
     return *this;
 }
+Rational& Rational::operator/=(const int rhs)
+{
+    return operator/=(Rational(rhs));
+}
 
-Rational operator/(const Rational& lhs, const Rational& rhs)
+Rational operator/(const Rational& numb1, const Rational& numb2)
 {
-    return Rational(lhs.num_*rhs.denum_, lhs.denum_*rhs.num_);
+    Rational res = lhs;
+    res /= rhs;
+    return res;
 }
-bool Rational::operator>(const Rational& rhs)
+Rational operator/(const Rational& numb1, const int numb2)
 {
-    return(num_*rhs.denum_ > rhs.num_*denum_);
+    Rational res = numb1;
+    res /= numb2;
+    return res;
 }
-bool Rational::operator<(const Rational& rhs)
+Rational operator/(const int numb1, const Rational& numb1)
 {
-    return(num_*rhs.denum_ < rhs.num_*denum_);
+    Rational res = numb1;
+    res /= numb2;
+    return res;
 }
-bool Rational::operator==(const Rational& rhs)
+
+Rational& Rational::operator-()
 {
-    return(num_ *rhs.denum_ == rhs.num_*denum_);
+    return *this *= -1;
 }
+
+bool operator>(const Rational& numb1, const Rational& numb2)
+{
+    Rational res(numb1);
+    res -= numb2;
+    return res.posit_Numb();
+}
+
+bool operator<(const Rational& numb1, const Rational& numb2)
+{
+    Rational res(numb1);
+    res -= numb2;
+    return !res.posit_Numb();
+}
+
+bool operator<=(const Rational& numb1, const Rational& numb2)
+{
+    return !(numb1 > numb2);
+}
+
+bool operator>=(const Rational& numb1, const Rational& numb2)
+{
+    return !(numb1 < numb2);
+}
+
+bool operator==(const Rational& numb1, const Rational& numb2)
+{
+    Rational delta = numb1 - numb2;
+    return (fabs(delta.transf_Double()) < 1E-6);
+}
+
+bool operator!=(const Rational& numb1, const Rational& numb2)
+{
+    return !(numb1 == numb2);
+}
+
+int Rational::nod(int numb1, int numb2)
+{
+    while (numb1 && numb2)
+    {
+        if (abs(numb1) > abs(numb2))
+            numb1 = abs(numb1 % numb2);
+        else
+            numb2 = abs(numb2 % numb1);
+    }
+    return (numb1 + numb2);
+}
+
+
+void Rational::Correct()
+{
+    int temp_nod = nod(num_, denum_);
+    num /= temp_nod;
+    denum /= temp_nod;
+
+    if (denum_ < 0)
+    {
+        denum_ *= -1;
+        num_ *= -1;
+    }
+}
+
+double Rational::transf_Double()
+{
+    return num_ / (double)denum_;
+}
+
+bool Rational::posit_Numb()
+{
+    return (num_ > 0) && (denum_ > 0);
+}
+
+ostream& operator<<(std::ostream& ostrm, Rational rhs)
+{
+    return rhs.writeTo(ostrm);
+}
+
+ostream& Rational::writeTo(ostream& ostrm) const
+{
+    ostrm << leftBrace << _num_ << separator << denum_ << rightBrace;
+    return ostrm;
+}
+

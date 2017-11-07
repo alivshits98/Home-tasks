@@ -1,9 +1,10 @@
 #include "rational.h"
 #include <iostream>
 #include <sstream>
+using namespace std;
+
 bool testParse(const std::string& str)
 {
-    using namespace std;
     istringstream istrm(str);
     Rational r;
     istrm >> r;
@@ -18,10 +19,8 @@ bool testParse(const std::string& str)
     return istrm.good();
 }
 
-
 int main()
 {
-    using namespace std;
     Rational r(1, 2);
     r.Correct(r);
     cout << r << endl;
@@ -57,34 +56,15 @@ int main()
     testParse("{3/7}");
     testParse("{0/ 9}");
     testParse("{3/ 5");
-    return 0;
-}
-std::ostream& Rational::writeTo(std::ostream& ostrm) const
-{
-    ostrm << leftBrace << num_ << separator << denum_ << rightBrace;
-    return ostrm;
-}
 
-std::istream& Rational::readFrom(std::istream& istrm)
-{
-    char leftBrace(0);
-    int num(0);
-    char s(0);
-    int denum(0);
-    char rightBrace(0);
-    istrm >> leftBrace >> num_ >> s >> denum_ >> rightBrace;
-    if (istrm.good())
+    try
     {
-        if ((Rational::leftBrace == leftBrace) && (Rational::separator == s)
-            && (Rational::rightBrace == rightBrace))
-        {
-            num_ = num;
-            denum_ = denum;
-        }
-        else
-        {
-            istrm.setstate(std::ios_base::failbit);
-        }
+        Rational nul(7, 0);
     }
-    return istrm;
+    catch (const invalid_argument& e)
+    {
+        cout << e.what() << endl;
+    }
+
+    return 0;
 }
